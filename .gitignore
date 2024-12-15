@@ -5,3 +5,7 @@ build/*
 lib/
 
 tools/
+
+gtoken.txt
+
+*.o
