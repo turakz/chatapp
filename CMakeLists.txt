@@ -13,9 +13,9 @@ include_directories(
 
 message(STATUS "adding project executable ChatserverMain...")
 add_executable(ChatserverMain
-  src/chatsession_broker.cpp
+  src/shared_state.cpp
+  src/listener.cpp
   src/chatserver.cpp
-  src/chatserver_main.cpp
 )
 
 message(STATUS "adding project executable ChatclientMain...")

@@ -4,7 +4,6 @@
 // local
 #include <chatclient.hpp>
 #include <chatsession.hpp>
-#include <chatsession_broker.hpp>
 
 client::client(std::string host, std::string port)
   : _host{host}
