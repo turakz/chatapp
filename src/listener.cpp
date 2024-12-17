@@ -36,7 +36,7 @@ listener::listener(boost::asio::io_context& ioc,
     return;
   }
 
-  // start listening for connections
+  // start listening for connections and allow for accept loop
   std::cout << "[SERVER]: listening...\n";
   this->_acceptor.listen(
     boost::asio::socket_base::max_listen_connections, ec);
@@ -49,7 +49,7 @@ listener::listener(boost::asio::io_context& ioc,
 
 auto listener::run() -> void
 {
-  // give the incoming connection its own strand
+  // give the incoming connection its own strand and begin accept loop
   this->_acceptor.async_accept(
     boost::asio::make_strand(this->_ioc),
     boost::beast::bind_front_handler(&listener::on_accept, shared_from_this()));

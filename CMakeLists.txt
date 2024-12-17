@@ -13,6 +13,7 @@ include_directories(
 
 message(STATUS "adding project executable ChatserverMain...")
 add_executable(ChatserverMain
+  src/websocket_session.cpp
   src/shared_state.cpp
   src/listener.cpp
   src/chatserver.cpp

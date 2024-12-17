@@ -11,7 +11,9 @@ class shared_state;
 
 class listener : public boost::enable_shared_from_this<listener> {
 public:
-  listener(boost::asio::io_context& ioc, boost::asio::ip::tcp::endpoint endpoint, boost::shared_ptr<shared_state> const& state);
+  listener(boost::asio::io_context& ioc,
+    boost::asio::ip::tcp::endpoint endpoint,
+    boost::shared_ptr<shared_state> const& state);
   auto run() -> void;
 private:
   boost::asio::io_context& _ioc;
