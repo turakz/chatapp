@@ -15,7 +15,7 @@ public:
   auto leave(websocket_session* session) -> void;
   auto send(std::string msg) -> void;
 private:
-  std::mutex mutex_;
+  std::mutex _mutex;
   std::unordered_set<websocket_session*> _sessions;
 };
 #endif

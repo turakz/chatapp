@@ -51,9 +51,11 @@ auto websocket_session::on_accept(boost::beast::error_code ec) -> void
     std::cerr << "[SERVER]: error: failed to accept handshake...\n";
     return;
   }
+  std::cout << "[SERVER]: user joined session...\n";
   // add this session to list of active sessions
   this->_state->join(this);
 
+  std::cout << "[SERVER]: accepted handshake, welcome client!\n";
   // read a message from client
   this->_webskt.async_read(
     this->_buffer,
@@ -63,7 +65,12 @@ auto websocket_session::on_accept(boost::beast::error_code ec) -> void
 auto websocket_session::on_read(boost::beast::error_code ec,
   std::uint16_t bytes_transferred) -> void
 {
-  if (ec)
+  if (ec == boost::beast::websocket::error::closed)
+  {
+    std::cerr << "[SERVER]: client disconnected\n";
+    return;
+  }
+  if (ec == boost::asio::error::eof)
   {
     std::cerr << "[SERVER]: error: failed to read client msg -- " << ec.message() << "\n";
     return;
@@ -72,6 +79,7 @@ auto websocket_session::on_read(boost::beast::error_code ec,
   this->_state->send(boost::beast::buffers_to_string(this->_buffer.data()));
 
   // re-start read loop
+  this->_buffer.consume(this->_buffer.size());
   this->_webskt.async_read(
     this->_buffer,
     boost::beast::bind_front_handler(&websocket_session::on_read, shared_from_this()));
@@ -79,32 +87,47 @@ auto websocket_session::on_read(boost::beast::error_code ec,
 
 auto websocket_session::send(boost::shared_ptr<std::string const> const& msg) -> void
 {
+  // post work to strand and ensure members of this will not be accessed concurrently
+  std::cout << "[SERVER]: posting msg...\n";
+  boost::asio::post(this->_webskt.get_executor(),
+    boost::beast::bind_front_handler(&websocket_session::on_send, shared_from_this(), msg));
+}
+
+auto websocket_session::on_send(boost::shared_ptr<std::string const> const& msg) -> void
+{
+  std::cout << "[SERVER]: tracking outgoing msg...\n";
   // append msg to msg queue for writes
   this->_write_queue.push_back(msg);
 
   // are we already writing?
   if (this->_write_queue.size() > 1)
   {
+    std::cout << "[SERVER]: processing existing msg...\n";
     // then let that strand (or those strands) write
     return;
   }
 
   // since we're not currently writing, broadcast immediately
   this->_webskt.async_write(
-    boost::asio::buffer(*this->_write_queue.front()),
+    boost::asio::buffer(*this->_write_queue.front() + "\n"),
     boost::beast::bind_front_handler(&websocket_session::on_write, shared_from_this()));
 }
 
 auto websocket_session::on_write(boost::beast::error_code ec,
   std::uint16_t bytes_transferred) -> void
 {
+  if (ec == boost::beast::websocket::error::closed)
+  {
+    std::cout << "[SERVER]: client disconnected -- " << ec.message() << "\n";
+    return;
+  }
   if (ec)
   {
     std::cerr << "[SERVER]: error: failed to write msg to client -- " << ec.message() << "\n";
     return;
   }
 
-  // remove most recently sent message
+  // remove most recently echoed message
   this->_write_queue.erase(std::begin(this->_write_queue));
   if (!this->_write_queue.empty())
   {

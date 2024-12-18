@@ -6,24 +6,27 @@ set(CMAKE_C_STANDARD 99)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
+# TODO(fractals): we want presets
+set(CMAKE_BUILD_TYPE Debug)
+
 message(STATUS "adding project include dirs...")
 include_directories(
-  inc
+  inc/server
+  inc/client
 )
 
 message(STATUS "adding project executable ChatserverMain...")
 add_executable(ChatserverMain
-  src/websocket_session.cpp
-  src/shared_state.cpp
-  src/listener.cpp
-  src/chatserver.cpp
+  src/server/websocket_session.cpp
+  src/server/shared_state.cpp
+  src/server/listener.cpp
+  src/server/chatserver.cpp
 )
 
 message(STATUS "adding project executable ChatclientMain...")
 add_executable(ChatclientMain
-  src/chatsession.cpp
-  src/chatclient.cpp
-  src/chatclient_main.cpp
+  src/client/chat_session.cpp
+  src/client/chatclient.cpp
 )
 
 # boost

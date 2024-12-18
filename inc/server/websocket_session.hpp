@@ -20,6 +20,7 @@ public:
     boost::shared_ptr<shared_state>const& state);
   ~websocket_session();
   auto run() -> void;
+  auto send(boost::shared_ptr<std::string const> const& msg) -> void;
 private:
   boost::beast::flat_buffer _buffer;
   boost::beast::websocket::stream<boost::beast::tcp_stream> _webskt;
@@ -29,7 +30,6 @@ private:
   auto on_accept(boost::beast::error_code ec) -> void;
   auto on_read(boost::beast::error_code ec,
     std::uint16_t bytes_transferred) -> void;
-  auto send(boost::shared_ptr<std::string const> const& msg) -> void;
   auto on_send(boost::shared_ptr<std::string const> const& msg) -> void;
   auto on_write(boost::beast::error_code ec,
     std::uint16_t bytes_transferred) -> void;
