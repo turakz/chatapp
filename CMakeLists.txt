@@ -20,13 +20,13 @@ add_executable(ChatserverMain
   src/server/websocket_session.cpp
   src/server/shared_state.cpp
   src/server/listener.cpp
-  src/server/chatserver.cpp
+  src/server/main.cpp
 )
 
 message(STATUS "adding project executable ChatclientMain...")
 add_executable(ChatclientMain
   src/client/chat_session.cpp
-  src/client/chatclient.cpp
+  src/client/main.cpp
 )
 
 # boost
